@@ -1,5 +1,6 @@
 from riotwatcher import LolWatcher, RiotWatcher, ApiError
 from config import api_key
+from database import save_match_data
 
 lol_watcher = LolWatcher(api_key)
 riot_watcher = RiotWatcher(api_key)
@@ -83,3 +84,5 @@ clean_data = clean_player_stats(my_stats, game_duration)
 
 print("--- Meus Dados Limpos e Processados ---")
 print(clean_data)
+
+save_match_data(clean_data)
