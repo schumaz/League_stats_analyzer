@@ -20,12 +20,25 @@ def fetch_match_details(match_id):
 
     return match_data
 
+def extract_player_stats(match_data, puuid):
+    participants = match_data["info"]["participants"]
+
+    for player in participants:
+        if player["puuid"] == puuid:
+            return player
+        
+    return None
+
+
 my_puuid = fetch_puuid("schumaZ", "fox")
 my_matches = fecth_match_history(my_puuid)
 
 recent_match_id = my_matches[0]
-
 details = fetch_match_details(recent_match_id)
 
-print("This is the data of my most recent match:")
-print(details.keys())
+my_stats = extract_player_stats(details, my_puuid)
+
+print("--- Minhas Estatísticas na Partida ---")
+print(f"Role: {my_stats['teamPosition']}")
+print(f"Campeão: {my_stats['championName']}")
+print(f"Kills: {my_stats['kills']} / Deaths: {my_stats['deaths']} / Assists: {my_stats['assists']}")
