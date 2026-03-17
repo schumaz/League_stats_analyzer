@@ -15,8 +15,17 @@ def fecth_match_history(puuid):
 
     return match_ids
 
-my_puuid = fetch_puuid("schumaZ", "fox")
-print(f"1. My puuid is: {my_puuid}")
+def fetch_match_details(match_id):
+    match_data = lol_watcher.match.by_id(region, match_id)
 
+    return match_data
+
+my_puuid = fetch_puuid("schumaZ", "fox")
 my_matches = fecth_match_history(my_puuid)
-print(f"2. My last matches is: {my_matches}")
+
+recent_match_id = my_matches[0]
+
+details = fetch_match_details(recent_match_id)
+
+print("This is the data of my most recent match:")
+print(details.keys())
