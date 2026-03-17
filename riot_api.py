@@ -1,22 +1,20 @@
 from riotwatcher import LolWatcher, RiotWatcher, ApiError
-from config import api_key
 from database import save_match_data
 
-lol_watcher = LolWatcher(api_key)
-riot_watcher = RiotWatcher(api_key)
-region = "americas"
-
-def fetch_puuid(player_name, player_tag):
+def fetch_puuid(api_key, player_name, player_tag, region):
+    riot_watcher = RiotWatcher(api_key)
     account = riot_watcher.account.by_riot_id(region, player_name, player_tag)
 
     return account["puuid"]
 
-def fetch_match_history(puuid):
+def fetch_match_history(api_key, puuid, region):
+    lol_watcher = LolWatcher(api_key)
     match_ids = lol_watcher.match.matchlist_by_puuid(region, puuid)
 
     return match_ids
 
-def fetch_match_details(match_id):
+def fetch_match_details(api_key, match_id, region):
+    lol_watcher = LolWatcher(api_key)
     match_data = lol_watcher.match.by_id(region, match_id)
 
     return match_data
