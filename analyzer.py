@@ -3,7 +3,7 @@ from collections import Counter
 
 database = "match_history.json"
 
-def analyze_role_performance(target_role):
+def analyze_performance(target_role=None):
     with open(database, 'r', encoding='utf-8') as file:
         history = json.load(file)
 
@@ -18,17 +18,19 @@ def analyze_role_performance(target_role):
     total_pinks = 0
     total_obj_dmg = 0
     total_towers = 0
+    total_wards = 0
 
     champions_played = Counter()
 
     for match in history:
-        if match["role"] == target_role:
+        if target_role is None or match["role"] == target_role:
             total_matches += 1
             
             # KDA and Farm
             total_kills += match.get("kills", 0)
             total_deaths += match.get("deaths", 0)
             total_assists += match.get("assists", 0)
+            total_wards += match.get("wards_placed", 0)
             total_farm_per_min += match.get("farm_per_min", 0)
 
             # Per min metrics
@@ -72,14 +74,19 @@ def analyze_role_performance(target_role):
         "Avg Towers destroyed": round(total_towers / total_matches, 1),
         
         # Vision
+        "Total Wards Placed": total_wards,
         "Avg Vision Score": round(total_vision_score / total_matches, 1),
         "Avg Pinks Bought": round(total_pinks / total_matches, 1)
     }
 
-    print(f"\n=== PERFORMANCE OVERVIEW: {target_role} ===")
+    title = target_role if target_role is not None else "GLOBAL"
+    print(f"\n=== PERFORMANCE OVERVIEW: {title} ===")
+
     for key, value in stats.items():
         print(f"{key}: {value}")
         
+    print("=======================================\n")
     return stats
     
-analyze_role_performance("JUNGLE")
+analyze_performance()
+analyze_performance("JUNGLE")
