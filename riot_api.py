@@ -10,7 +10,7 @@ def fetch_puuid(player_name, player_tag):
 
     return account["puuid"]
 
-def fecth_match_history(puuid):
+def fetch_match_history(puuid):
     match_ids = lol_watcher.match.matchlist_by_puuid(region, puuid)
 
     return match_ids
@@ -29,16 +29,57 @@ def extract_player_stats(match_data, puuid):
         
     return None
 
+def clean_player_stats(player_stats, game_duration_seconds):
+    # Total game minutes calculation
+    minutes = game_duration_seconds / 60
+
+    # Total farm calculation
+    total_farm = player_stats['totalMinionsKilled'] + player_stats["neutralMinionsKilled"]
+
+    # Per minute calculations
+    farm_per_min = total_farm / minutes
+    gold_per_min = player_stats["goldEarned"] / minutes
+    wards_per_min = player_stats["wardsPlaced"] / minutes
+    dmg_per_min = player_stats["totalDamageDealtToChampions"] / minutes
+
+    return {
+        # --- PLAYER ---
+        "assists": player_stats["assists"],
+        "champ": player_stats["championName"],
+        "deaths": player_stats["deaths"],
+        "dmg_per_min": round(dmg_per_min, 1),
+        "kills": player_stats["kills"],
+        "role": player_stats["teamPosition"],
+        "total_dmg": player_stats["totalDamageDealtToChampions"],
+
+        # --- ECONOMY ---
+        "farm_per_min": round(farm_per_min, 1),
+        "gold_per_min": round(gold_per_min, 1),
+        "total_farm": total_farm,
+        "total_gold": player_stats["goldEarned"],
+
+        # --- VISION ---
+        "bought_pinks": player_stats["visionWardsBoughtInGame"],
+        "vision_score": player_stats["visionScore"],
+        "wards_per_min": round(wards_per_min, 1),
+        "wards_placed": player_stats["wardsPlaced"],
+
+        # --- OBJECTIVES ---
+        "dmg_to_objectives": player_stats['damageDealtToObjectives'],
+        "tower_destroyed": player_stats['turretTakedowns'],
+    }
 
 my_puuid = fetch_puuid("schumaZ", "fox")
-my_matches = fecth_match_history(my_puuid)
+my_matches = fetch_match_history(my_puuid)
 
 recent_match_id = my_matches[0]
 details = fetch_match_details(recent_match_id)
 
 my_stats = extract_player_stats(details, my_puuid)
 
-print("--- Minhas Estatísticas na Partida ---")
-print(f"Role: {my_stats['teamPosition']}")
-print(f"Campeão: {my_stats['championName']}")
-print(f"Kills: {my_stats['kills']} / Deaths: {my_stats['deaths']} / Assists: {my_stats['assists']}")
+game_duration = details["info"]["gameDuration"]
+
+clean_data = clean_player_stats(my_stats, game_duration)
+
+print("--- Meus Dados Limpos e Processados ---")
+print(clean_data)
