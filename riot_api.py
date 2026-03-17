@@ -68,21 +68,7 @@ def clean_player_stats(player_stats, game_duration_seconds):
         # --- OBJECTIVES ---
         "dmg_to_objectives": player_stats['damageDealtToObjectives'],
         "tower_destroyed": player_stats['turretTakedowns'],
+
+        # --- TIME ---
+        "match_duration": round(minutes, 2),
     }
-
-my_puuid = fetch_puuid("schumaZ", "fox")
-my_matches = fetch_match_history(my_puuid)
-
-recent_match_id = my_matches[0]
-details = fetch_match_details(recent_match_id)
-
-my_stats = extract_player_stats(details, my_puuid)
-
-game_duration = details["info"]["gameDuration"]
-
-clean_data = clean_player_stats(my_stats, game_duration)
-
-print("--- Meus Dados Limpos e Processados ---")
-print(clean_data)
-
-save_match_data(clean_data)
