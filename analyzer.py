@@ -87,6 +87,3 @@ def analyze_performance(target_role=None):
         
     print("=======================================\n")
     return stats
-    
-analyze_performance()
-analyze_performance("JUNGLE")
