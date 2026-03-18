@@ -4,6 +4,7 @@ import os
 database = "match_history.json"
 
 def is_match_saved(match_id):
+    """Checks if a match ID already exists in the local database."""
     if not os.path.exists(database):
         return False
     
@@ -17,6 +18,7 @@ def is_match_saved(match_id):
     return False
 
 def save_match_data(match_data):
+    """Appends new match data to the JSON database."""
     history = []
 
     if os.path.exists(database):

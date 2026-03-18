@@ -11,15 +11,18 @@ from riot_api import fetch_puuid
 SETTINGS_FILE = "user_settings.json"
 
 def load_settings():
+    """Loads user settings from the local JSON file."""
     if os.path.exists(SETTINGS_FILE):
         with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     return {}
 
 def save_settings(data):
+    """Saves user settings to the local JSON file."""
     with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f)
 
+# Configure the main Streamlit page settings
 st.set_page_config(page_title="LoL Stats Analyzer", page_icon="🎮", layout="wide")
 
 st.markdown("""
@@ -62,6 +65,7 @@ METRIC_DICTIONARY = {
 
 @st.cache_data
 def load_data():
+    """Loads and prepares match history data for the dashboard."""
     try:
         with open("match_history.json", 'r', encoding='utf-8') as file:
             data = json.load(file)
@@ -74,6 +78,7 @@ def load_data():
 
 df = load_data()
 
+# --- SIDEBAR: Filters ---
 st.sidebar.header("Filters")
 
 official_roles = ["ALL", "TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"]
@@ -84,6 +89,7 @@ chosen_role = st.sidebar.selectbox("Filter by Position:", formatted_roles)
 st.sidebar.markdown("---")
 st.sidebar.header("🔑 Authentication")
 
+# Handle user authentication state
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.settings = load_settings()
@@ -100,6 +106,7 @@ if "authenticated" not in st.session_state:
         except Exception:
             st.session_state.authenticated = False
 
+# Render authentication form if not logged in
 if not st.session_state.authenticated:
     st.sidebar.warning("API Key is missing or expired.")
     with st.sidebar.form("auth_form"):
@@ -129,6 +136,7 @@ if not st.session_state.authenticated:
                 st.error("Invalid API Key or Player not found. Try again.")
     st.stop()
 else:
+    # Display logged-in status
     s = st.session_state.settings
     st.sidebar.success(f"Logged in: **{s['player_name']}#{s['player_tag']}**")
     if st.sidebar.button("⚙️ Change Account / API Key"):
@@ -137,6 +145,7 @@ else:
 
 st.sidebar.markdown("---")
 
+# Trigger data sync script
 if st.sidebar.button("🔄 Sync Recent Matches", use_container_width=True):
     with st.spinner("Downloading from Riot Games..."):
         s = st.session_state.settings
@@ -148,6 +157,7 @@ if st.sidebar.button("🔄 Sync Recent Matches", use_container_width=True):
         st.success("Sync Complete!")
         st.rerun()
 
+# Handle database clearing logic
 if st.sidebar.button("🗑️ Clear Database", use_container_width=True):
     st.session_state.confirm_delete = True
 
@@ -170,10 +180,12 @@ if st.session_state.get("confirm_delete", False):
             
 st.sidebar.markdown("---")
 
+# Stop execution if there is no data to display
 if df.empty:
     st.warning("No data found. Click the Sync button on the sidebar to download your matches!")
     st.stop()
 
+# Apply role filter
 if chosen_role != "ALL":
     original_role = [k for k, v in ROLE_DICTIONARY.items() if v == chosen_role][0]
     df_filtered = df[df["role"] == original_role].copy()
@@ -184,6 +196,7 @@ if df_filtered.empty:
     st.warning(f"You don't have any saved matches playing as **{chosen_role}** yet. Go play some to see the charts!")
     st.stop() 
 
+# --- MAIN DASHBOARD TABS ---
 tab_overview, tab_custom, tab_champs = st.tabs(["📊 Global Overview", "🛠️ Custom Chart Builder", "🦸 Champion Stats"])
 
 with tab_overview:

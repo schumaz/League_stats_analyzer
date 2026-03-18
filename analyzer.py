@@ -4,14 +4,20 @@ from collections import Counter
 database = "match_history.json"
 
 def analyze_performance(target_role=None):
+    """
+    Reads match history and calculates average performance stats, 
+    optionally filtered by a specific role.
+    """
     with open(database, 'r', encoding='utf-8') as file:
         history = json.load(file)
 
     total_matches = 0
     
+    # Accumulators for basic stats
     total_kills, total_deaths, total_assists = 0, 0, 0
     total_farm_per_min = 0
 
+    # Accumulators for advanced metrics
     total_dmg_per_min = 0
     total_gold_per_min = 0
     total_vision_score = 0
@@ -23,6 +29,7 @@ def analyze_performance(target_role=None):
     champions_played = Counter()
 
     for match in history:
+        # Process match only if it matches the target role (or if no role is targeted)
         if target_role is None or match["role"] == target_role:
             total_matches += 1
             
@@ -43,17 +50,18 @@ def analyze_performance(target_role=None):
 
             champions_played[match.get("champ")] += 1
 
-    # In case the user has no matches in this target_role to analyze
+    # Exit early if no matches are found
     if total_matches == 0:
         print(f"No matches found for role: {target_role}")
         return None
     
-    # KDA metric
+    # Prevent division by zero for perfect KDA
     if total_deaths == 0:
         kda_ratio = float('inf')
     else:
         kda_ratio = (total_kills + total_assists) / total_deaths
 
+    # Compile the final averaged statistics
     stats = {
         "Total Matches": total_matches,
         "Most Played Champs": dict(champions_played.most_common(3)),
