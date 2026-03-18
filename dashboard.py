@@ -4,6 +4,7 @@ import json
 import subprocess
 import altair as alt
 import os 
+import sys
 
 from riot_api import fetch_puuid
 
@@ -139,7 +140,10 @@ st.sidebar.markdown("---")
 if st.sidebar.button("🔄 Sync Recent Matches", use_container_width=True):
     with st.spinner("Downloading from Riot Games..."):
         s = st.session_state.settings
-        subprocess.run(["python", "main.py", s["api_key"], s["player_name"], s["player_tag"], s["region"]])
+        
+        current_folder = os.path.dirname(os.path.abspath(__file__))
+        main_path = os.path.join(current_folder, "main.py")
+        subprocess.run([sys.executable, main_path, s["api_key"], s["player_name"], s["player_tag"], s["region"]])
         st.cache_data.clear()
         st.success("Sync Complete!")
         st.rerun()
